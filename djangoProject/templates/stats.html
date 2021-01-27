@@ -1,0 +1,27 @@
+{%  extends 'master.html' %}
+{%  block content %}
+<div class="list-group">
+        {% for player in fudbaleri %}
+                {{ player.ime }}
+                {{ player.prezime }}
+                {{ player.golovi }})
+                {{ player.asistencije }})
+        {% endfor %}
+</div>
+    <div class="list-group">
+        {% for team in timovi %}
+                {{ team.ime_tima }}
+                {{ team.osvojeni_poeni }}
+
+        {% endfor %}
+</div>
+
+    </div>
+    <div class="list-group">
+        {% for user in korisnici %}
+                {{ user.username }}
+                {{ user.name }}
+                {{ user.email }})
+        {% endfor %}
+</div>
+{% endblock %}
