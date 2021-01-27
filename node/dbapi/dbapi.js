@@ -45,94 +45,80 @@ async function hashPassword(password) {
     console.log(hash)
 }
 
-route.post('/users', jsonParser, (req, res)=> {
-    let { error } = userSema.validate(req.body);
 
-    if (error)
-        res.status(400).send(error.details[0].message);
-    else{
-        let query = 'insert into users (username, password, name, email) values (?, "?", ?, ?)';
-        let formatted = mysql.format(query, [req.body.username, hashPassword(req.body.password), req.body.name, req.body.email]);
-
-        pool.query(formatted, (err, response) => {
-            if (err)
-                res.status(500).send(err.sqlMessage);
-            else {
-                // Ako nema greske dohvatimo kreirani objekat iz baze i posaljemo ga korisniku
-                query = 'select * from users where username=?';
-                formatted = mysql.format(query, [response.username]);
-
-                pool.query(formatted, (err, rows) => {
-                    if (err)
-                        res.status(500).send(err.sqlMessage);
-                    else
-                        res.send(rows[0]);
-                });
-            }
-        });
-    }
-});
 
 route.post('/register',jsonParser, (req,res)=>{
-    const name = req.body.username;
-    const email= req.body.email;
-    var password= req.body.password;
-    var name1 = req.body.name;
-    let errors = [];
-
-    //Check required fields
-    if(!name  || !password  ){
-        errors.push({msg: 'Please fill in all the fields'});
-        res.send({message:'Please fill in all the fields'});
-    }
-
-
-
-    if(errors.length>0){
-
+    let { error } = userSema.validate(req.body);
+    if (error){
+        console.log(error)
+        res.status(400).send(error.details[0].message);
     }else{
-        if(email){
-            pool.query('SELECT * FROM users WHERE username = ?', [name],
-                (error, results, fields)=>{
-                    if (results.length>0){
-                        res.send('username exists');
-                    }else{
-                        res.send('Reg success')
-                        bcrypt.hash(password, 5, (err, hash)=> {
-                            if(err)throw err;
-                            password = hash;
-                            pool.query('INSERT INTO users(username, email, password, name) VALUES("'+name+'", "'+email+'", "'+password+'","' + name1+ ' ")',
-                                [name, email, password, name1]);
-                        });
-                    }
-                });
+        const name = req.body.username;
+        const email= req.body.email;
+        var password= req.body.password;
+        var name1 = req.body.name;
+        let errors = [];
+
+        //Check required fields
+        if(!name  || !password  ){
+            errors.push({msg: 'Please fill in all the fields'});
+            res.send({message:'Please fill in all the fields'});
+        }
+
+
+
+        if(errors.length>0){
+
         }else{
-            res.send('Enter Email');
-        };
+            if(email){
+                pool.query('SELECT * FROM users WHERE username = ?', [name],
+                    (error, results, fields)=>{
+                        if (results.length>0){
+                            res.send('username exists');
+                        }else{
+                            res.send('Reg success')
+                            bcrypt.hash(password, 5, (err, hash)=> {
+                                if(err)throw err;
+                                password = hash;
+                                pool.query('INSERT INTO users(username, email, password, name) VALUES("'+name+'", "'+email+'", "'+password+'","' + name1+ ' ")',
+                                    [name, email, password, name1]);
+                            });
+                        }
+                    });
+            }else{
+                res.send('Enter Email');
+            };
+        }
     }
+
 });
 route.post('/login',jsonParser, (req, res)=> {
+    let { error } = loginSema.validate(req.body);
+    console.log(req.body.username)
+    console.log(req.body.password)
+    if (error){
+        res.status(400).send(error.details[0].message);
+    }else {
+        const username = req.body.username;
+        const password = req.body.password;
 
-
-    const username = req.body.username;
-    const password = req.body.password;
-
-    if (username && password) {
-        pool.query('SELECT * FROM users WHERE username = ?', [username],
-            (error, results, fields)=> {
-            pass = results[0].password;
-            console.log(results[0]);
-            console.log(pass);
-                if (bcrypt.compareSync(password,pass)) {
-                    res.send(results[0]);
-                } else {
-                    res.send('Incorrect Email and/or Password!');
-                }
-                res.end();
-            });
-    } else {
-        res.send('Please enter Username and Password!');
-        res.end();
+        if (username && password) {
+            pool.query('SELECT * FROM users WHERE username = ?', [username],
+                (error, results, fields) => {
+                    pass = results[0].password;
+                    console.log(results[0]);
+                    console.log(pass);
+                    if (bcrypt.compareSync(password, pass)) {
+                        res.send(results[0]);
+                    } else {
+                        res.send('Incorrect Email and/or Password!');
+                    }
+                    res.end();
+                });
+        } else {
+            res.send('Please enter Username and Password!');
+            res.end();
+        }
     }
 });
 

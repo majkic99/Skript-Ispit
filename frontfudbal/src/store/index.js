@@ -6,9 +6,14 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     fudbaleri : [],
-    timovi : []
+    timovi : [],
+    user: []
   },
   mutations: {
+    setUser: function(state, user){
+      state.user = user;
+    },
+
     setFudbaleri: function(state, fudbaleri){
         state.fudbaleri = fudbaleri;
     },
@@ -123,6 +128,52 @@ export default new Vuex.Store({
         return response.json()
       }).then((jsonData) => {
         commit('removeTim', jsonData.idTimovi)
+      }).catch((error) => {
+        if (typeof error.text === 'function')
+          error.text().then((errorMessage) => {
+            alert(errorMessage);
+          });
+        else
+          alert(error);
+      });
+    },
+    login : function ({commit}, user){
+      fetch('http://localhost:81/api/login', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: user
+      }).then((response) => {
+        if (!response.ok)
+          throw response;
+
+        return response.json();
+      }).then((jsonData) => {
+        commit('setUser', jsonData);
+      }).catch((error) => {
+        if (typeof error.text === 'function')
+          error.text().then((errorMessage) => {
+            alert(errorMessage);
+          });
+        else
+          alert(error);
+      });
+    },
+    newUser : function ({commit}, user){
+      fetch('http://localhost:81/api/register', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: user
+      }).then((response) => {
+        if (!response.ok)
+          throw response;
+
+        return response.json();
+      }).then((jsonData) => {
+
       }).catch((error) => {
         if (typeof error.text === 'function')
           error.text().then((errorMessage) => {
