@@ -20,8 +20,8 @@ name: "TabelaFudbalera",
         { key: 'idFudbaleri' },
         { key: 'ime' },
         { key: 'prezime' },
-        { key: 'osvojeni_poeni' },
-        { key: 'minuti_odigrani' }
+        { key: 'golovi' },
+        { key: 'asistencije' }
       ]
     }
   }

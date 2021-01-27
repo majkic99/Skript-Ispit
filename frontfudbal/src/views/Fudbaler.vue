@@ -19,7 +19,7 @@
     </b-row>
     <b-row class="mt-2">
       <b-col sm="2">
-        <label for="msg">POENI:</label>
+        <label for="msg">Golovi:</label>
       </b-col>
       <b-col sm="10">
         <p id="msg" style="text-align: left">{{ fudbaler.golovi }}</p>
@@ -27,7 +27,7 @@
     </b-row>
     <b-row class="mt-2">
       <b-col sm="2">
-        <label for="msg">MINUTAZA:</label>
+        <label for="msg">Asistencije:</label>
       </b-col>
       <b-col sm="10">
         <p id="msg" style="text-align: left">{{ fudbaler.asistencije }}</p>

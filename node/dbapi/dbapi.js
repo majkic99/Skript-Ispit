@@ -14,6 +14,7 @@ const pool = mysql.createPool({
 })
 
 const route = express.Router();
+const bcrypt = require('bcrypt')
 
 const fudbaleriSema = Joi.object().keys({
     ime: Joi.string().trim().max(30).required(),
@@ -26,6 +27,114 @@ const timoviSema = Joi.object().keys({
     ime_tima : Joi.string().min(3).max(24).required(),
     osvojeni_poeni : Joi.number()
 })
+
+const userSema = Joi.object().keys({
+    username : Joi.string().min(5).max(40).required(),
+    password : Joi.string().min(5).max(15).required(),
+    name : Joi.string().min(2).max(20),
+    email : Joi.string().email()
+})
+
+const loginSema = Joi.object().keys({
+    username : Joi.string().min(5).max(40).required(),
+    password : Joi.string().min(5).max(15).required()
+})
+async function hashPassword(password) {
+    const salt = await bcrypt.genSalt(10)
+    const hash = await bcrypt.hash(password, salt)
+    console.log(hash)
+}
+
+route.post('/users', jsonParser, (req, res)=> {
+    let { error } = userSema.validate(req.body);
+
+    if (error)
+        res.status(400).send(error.details[0].message);
+    else{
+        let query = 'insert into users (username, password, name, email) values (?, "?", ?, ?)';
+        let formatted = mysql.format(query, [req.body.username, hashPassword(req.body.password), req.body.name, req.body.email]);
+
+        pool.query(formatted, (err, response) => {
+            if (err)
+                res.status(500).send(err.sqlMessage);
+            else {
+                // Ako nema greske dohvatimo kreirani objekat iz baze i posaljemo ga korisniku
+                query = 'select * from users where username=?';
+                formatted = mysql.format(query, [response.username]);
+
+                pool.query(formatted, (err, rows) => {
+                    if (err)
+                        res.status(500).send(err.sqlMessage);
+                    else
+                        res.send(rows[0]);
+                });
+            }
+        });
+    }
+});
+
+route.post('/register',jsonParser, (req,res)=>{
+    const name = req.body.username;
+    const email= req.body.email;
+    var password= req.body.password;
+    var name1 = req.body.name;
+    let errors = [];
+
+    //Check required fields
+    if(!name  || !password  ){
+        errors.push({msg: 'Please fill in all the fields'});
+        res.send({message:'Please fill in all the fields'});
+    }
+
+
+
+    if(errors.length>0){
+
+    }else{
+        if(email){
+            pool.query('SELECT * FROM users WHERE username = ?', [name],
+                (error, results, fields)=>{
+                    if (results.length>0){
+                        res.send('username exists');
+                    }else{
+                        res.send('Reg success')
+                        bcrypt.hash(password, 5, (err, hash)=> {
+                            if(err)throw err;
+                            password = hash;
+                            pool.query('INSERT INTO users(username, email, password, name) VALUES("'+name+'", "'+email+'", "'+password+'","' + name1+ ' ")',
+                                [name, email, password, name1]);
+                        });
+                    }
+                });
+        }else{
+            res.send('Enter Email');
+        };
+    }
+});
+route.post('/login',jsonParser, (req, res)=> {
+
+
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (username && password) {
+        pool.query('SELECT * FROM users WHERE username = ?', [username],
+            (error, results, fields)=> {
+            pass = results[0].password;
+            console.log(results[0]);
+            console.log(pass);
+                if (bcrypt.compareSync(password,pass)) {
+                    res.send(results[0]);
+                } else {
+                    res.send('Incorrect Email and/or Password!');
+                }
+                res.end();
+            });
+    } else {
+        res.send('Please enter Username and Password!');
+        res.end();
+    }
+});
 
 route.get('/test', (req, res)=>{
     res.send('cao');
@@ -76,6 +185,7 @@ route.post('/fudbaleri', jsonParser, (req, res)=> {
         });
     }
 });
+
 
 route.post('/timovi', jsonParser, (req, res)=> {
     let { error } = timoviSema.validate(req.body);
