@@ -14,10 +14,10 @@
               <b-input v-model="prezime" class="mb-2 mr-sm-2 mb-sm-0" placeholder="Prezime"></b-input>
             </b-col>
             <b-col sm="2">
-              <b-input v-model="osvojeni_poeni" class="mb-2 mr-sm-2 mb-sm-0" placeholder="Poeni"></b-input>
+              <b-input v-model="golovi" class="mb-2 mr-sm-2 mb-sm-0" placeholder="golovi"></b-input>
             </b-col>
             <b-col sm="2">
-              <b-input v-model="minuti_odigrani" class="mb-2 mr-sm-2 mb-sm-0" placeholder="Minutaza"></b-input>
+              <b-input v-model="asistencije" class="mb-2 mr-sm-2 mb-sm-0" placeholder="asistencije"></b-input>
             </b-col>
           </b-row>
           <b-row class="mt-2"> </b-row>
@@ -40,8 +40,8 @@ const  Joi = require('joi');
 const fudbaleriSema = Joi.object().keys({
   ime: Joi.string().trim().max(30).required(),
   prezime: Joi.string().trim().max(30).required(),
-  osvojeni_poeni: Joi.number().required(),
-  minuti_odigrani: Joi.number().required(),
+  golovi: Joi.number().required(),
+  asistencije: Joi.number().required(),
   id: Joi.number().required()
 });
 
@@ -54,7 +54,7 @@ export default  {
     return {
       ime: '',
       prezime: '',
-      osvojeni_poeni: '',
+      golovi: '',
       minuti_odigrani: '',
       idFudbaleri: ''
     }
@@ -63,8 +63,8 @@ export default  {
     ...mapActions(['changeFudbaler']),
 
     change: function() {
-      const msg = JSON.stringify({ime: this.ime, prezime: this.prezime, osvojeni_poeni: parseInt(this.osvojeni_poeni), minuti_odigrani: parseInt(this.minuti_odigrani)});
-      const { error, value } = fudbaleriSema.validate({ime: this.ime, prezime: this.prezime, osvojeni_poeni: parseInt(this.osvojeni_poeni), minuti_odigrani: parseInt(this.minuti_odigrani), id: this.idFudbaleri});
+      const msg = JSON.stringify({ime: this.ime, prezime: this.prezime, golovi: parseInt(this.golovi), asistencije: parseInt(this.asistencije)});
+      const { error, value } = fudbaleriSema.validate({ime: this.ime, prezime: this.prezime, golovi: parseInt(this.golovi), asistencije: parseInt(this.asistencije), id: this.idFudbaleri});
 
       if(error){
         alert(error);
@@ -77,8 +77,8 @@ export default  {
 
       this.ime = '';
       this.prezime = '';
-      this.osvojeni_poeni = '';
-      this.minuti_odigrani = '';
+      this.golovi = '';
+      this.asistencije = '';
       this.idFudbaleri = '';
     }
   }
