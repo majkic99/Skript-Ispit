@@ -83,7 +83,9 @@ route.post('/register',jsonParser, (req,res)=>{
                                 pool.query('INSERT INTO users(username, email, password, name) VALUES("'+name+'", "'+email+'", "'+password+'","' + name1+ ' ")',
                                     [name, email, password, name1]);
                             });
+                            console.log("uspesna registracija")
                         }
+
                     });
             }else{
                 res.send('Enter Email');

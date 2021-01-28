@@ -20,5 +20,7 @@ from ispitDjango import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.stats)
+    path('', views.stats),
+    path('home/', views.home, name='home'),
+    path('table/', views.table,name='table')
 ]
